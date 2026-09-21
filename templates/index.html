@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dual-Panel Activity & Protocol Visualizer for Computer Networks Application Layer (DNS, HTTP, SMTP, Video Streaming)">
+    <title>Application Layer – Dual-Panel Activity & Protocol Visualizer</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="dark-theme">
+    <!-- Application Header -->
+    <header class="app-header">
+        <div class="header-brand">
+            <div class="logo-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                    <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                    <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                    <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                </svg>
+            </div>
+            <div>
+                <h1 class="header-title">Dual-Panel Activity &amp; Protocol Visualizer</h1>
+                <p class="header-subtitle">Computer Networks &bull; Application Layer Protocol Simulation (DNS &bull; HTTP &bull; SMTP &bull; HLS Streaming)</p>
+            </div>
+        </div>
+
+        <div class="header-meta">
+            <div class="badge-tag live-badge">
+                <span class="live-dot"></span> Live Sync Active
+            </div>
+            <div class="badge-tag ai-badge" title="Developed with Google Antigravity & Gemini">
+                <span class="ai-sparkle">✦</span> Agentic AI: Gemini
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dual-Panel Container (Strict Requirement: Side-by-Side) -->
+    <main class="dashboard-grid">
+
+        <!-- ============================================================ -->
+        <!-- LEFT PANEL: ACTIVITY PANEL                                   -->
+        <!-- ============================================================ -->
+        <section class="panel activity-panel" id="activityPanel">
+            <div class="panel-header">
+                <div class="panel-title-wrap">
+                    <span class="panel-number">1</span>
+                    <div>
+                        <h2 class="panel-title">Activity Panel</h2>
+                        <p class="panel-subtitle">Select and execute an application-layer activity</p>
+                    </div>
+                </div>
+
+                <!-- Activity Selector Tabs -->
+                <div class="tab-selector" role="tablist">
+                    <button class="tab-btn active" id="tabBrowsing" role="tab" aria-selected="true" data-mode="browsing">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                        <span>Browsing</span>
+                    </button>
+                    <button class="tab-btn" id="tabMail" role="tab" aria-selected="false" data-mode="mail">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        <span>Mail (SMTP)</span>
+                    </button>
+                    <button class="tab-btn" id="tabStreaming" role="tab" aria-selected="false" data-mode="streaming">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        <span>Streaming</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel Body -->
+            <div class="panel-body">
+
+                <!-- ----------------------------------------- -->
+                <!-- MODE 1: BROWSING ACTIVITY                -->
+                <!-- ----------------------------------------- -->
+                <div class="activity-view active" id="viewBrowsing">
+                    <div class="activity-card">
+                        <h3 class="view-heading">Web Browser Simulator (DNS &rarr; HTTP/1.1)</h3>
+                        <p class="view-desc">Enter a domain or full URL to inspect the host DNS resolution followed by an HTTP/1.1 GET transaction.</p>
+
+                        <form id="browseForm" class="browse-form" onsubmit="return false;">
+                            <div class="url-input-wrap">
+                                <span class="url-scheme">http://</span>
+                                <input type="text" id="browseUrlInput" class="form-input" placeholder="e.g. example.com or wikipedia.org" value="example.com" spellcheck="false" autocomplete="off" required>
+                                <button type="submit" id="btnVisit" class="btn btn-primary">
+                                    <span>Visit</span>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Quick Presets -->
+                        <div class="presets-row">
+                            <span class="presets-label">Presets:</span>
+                            <button type="button" class="preset-chip" data-url="example.com">example.com</button>
+                            <button type="button" class="preset-chip" data-url="wikipedia.org">wikipedia.org</button>
+                            <button type="button" class="preset-chip" data-url="httpbin.org/get">httpbin.org/get</button>
+                            <button type="button" class="preset-chip" data-url="cs.stanford.edu">cs.stanford.edu</button>
+                        </div>
+                    </div>
+
+                    <!-- Browser Window Mockup -->
+                    <div class="browser-mockup">
+                        <div class="browser-mockup-bar">
+                            <div class="window-dots">
+                                <span class="dot dot-red"></span>
+                                <span class="dot dot-yellow"></span>
+                                <span class="dot dot-green"></span>
+                            </div>
+                            <div class="mockup-address" id="mockupAddressBar">http://example.com</div>
+                            <div class="mockup-status-badge" id="browserStatusBadge">Ready</div>
+                        </div>
+                        <div class="browser-viewport" id="browserViewport">
+                            <div class="viewport-placeholder">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                                <p>Click <strong>Visit</strong> above to initiate DNS resolution and HTTP/1.1 page retrieval.</p>
+                            </div>
+                            <iframe id="browserPreviewFrame" class="browser-frame hidden" sandbox="allow-same-origin" title="Web Preview"></iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ----------------------------------------- -->
+                <!-- MODE 2: MAIL ACTIVITY                    -->
+                <!-- ----------------------------------------- -->
+                <div class="activity-view" id="viewMail">
+                    <div class="activity-card">
+                        <h3 class="view-heading">SMTP Mail Agent (DNS MX &rarr; RFC 5321)</h3>
+                        <p class="view-desc">Compose and send an email. Visualizes DNS MX resolution and the complete SMTP command-response handshake.</p>
+
+                        <form id="mailForm" class="mail-form" onsubmit="return false;">
+                            <div class="form-group-row">
+                                <div class="form-group flex-1">
+                                    <label for="mailFromInput">From (Sender):</label>
+                                    <input type="email" id="mailFromInput" class="form-input" value="student@university.edu" required>
+                                </div>
+                                <div class="form-group flex-1">
+                                    <label for="mailToInput">To (Recipient):</label>
+                                    <input type="email" id="mailToInput" class="form-input" value="professor@networks-lab.edu" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="mailSubjectInput">Subject:</label>
+                                <input type="text" id="mailSubjectInput" class="form-input" value="Computer Networks Assignment Submission - Dual Panel" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="mailBodyInput">Message Body:</label>
+                                <textarea id="mailBodyInput" class="form-textarea" rows="4" required>Dear Professor,
+
+Please find our Application Layer dual-panel protocol visualizer demonstration. It showcases live DNS resolution, HTTP/1.1 message flows, SMTP RFC 5321 state machines, and chunked HLS video streaming with dynamic telemetry.
+
+Regards,
+Antigravity Student Team</textarea>
+                            </div>
+
+                            <div class="mail-actions">
+                                <button type="submit" id="btnSendMail" class="btn btn-primary">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                                    <span>Send Email via SMTP</span>
+                                </button>
+                                <div class="mail-status-badge" id="mailStatusBadge">Draft Ready</div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Mail Envelope Status Card -->
+                    <div class="envelope-card" id="envelopeCard">
+                        <div class="envelope-header">
+                            <span class="envelope-label">SMTP Transfer Status</span>
+                            <span class="envelope-id" id="envelopeQueueId">Queue ID: Pending</span>
+                        </div>
+                        <div class="envelope-body">
+                            <div class="envelope-route">
+                                <div class="route-node">
+                                    <span class="route-icon">💻</span>
+                                    <span class="route-name">Client MUA</span>
+                                </div>
+                                <div class="route-line" id="mailRouteLine">
+                                    <span class="route-dot"></span>
+                                </div>
+                                <div class="route-node">
+                                    <span class="route-icon">📬</span>
+                                    <span class="route-name" id="routeMtaName">MTA (mail.networks-lab.edu)</span>
+                                </div>
+                            </div>
+                            <div class="envelope-details" id="envelopeDetails">
+                                <span class="badge badge-neutral">Ready to transmit</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ----------------------------------------- -->
+                <!-- MODE 3: STREAMING ACTIVITY               -->
+                <!-- ----------------------------------------- -->
+                <div class="activity-view" id="viewStreaming">
+                    <div class="activity-card">
+                        <div class="stream-header-row">
+                            <div>
+                                <h3 class="view-heading">Online Video Streamer (HLS / MPEG-DASH)</h3>
+                                <p class="view-desc">Plays online videos in real time while capturing CDN DNS lookups, manifest playlists, and chunked HTTP segment transfers.</p>
+                            </div>
+                            <div class="stream-live-pill">
+                                <span class="stream-dot"></span> Online Media
+                            </div>
+                        </div>
+
+                        <!-- Video Selection & Quality Selector -->
+                        <div class="stream-controls-bar">
+                            <div class="form-group flex-1">
+                                <label for="videoSelect">Select Video Source:</label>
+                                <select id="videoSelect" class="form-select">
+                                    <option value="bbb" selected>Big Buck Bunny (Blender Animation)</option>
+                                    <option value="tos">Tears of Steel (Sci-Fi Short Film)</option>
+                                    <option value="sintel">Sintel (Fantasy CGI Animation)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="qualitySelect">Quality Selector:</label>
+                                <select id="qualitySelect" class="form-select quality-select">
+                                    <option value="1080p">1080p (5.2 Mbps)</option>
+                                    <option value="720p" selected>720p (2.8 Mbps)</option>
+                                    <option value="480p">480p (1.2 Mbps)</option>
+                                    <option value="360p">360p (600 kbps)</option>
+                                    <option value="auto">Auto (Adaptive)</option>
+                                </select>
+                            </div>
+
+                            <div class="stream-btn-wrap">
+                                <button type="button" id="btnInitStream" class="btn btn-primary">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                    <span>Load &amp; Stream</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Online Video Player Frame -->
+                    <div class="player-container">
+                        <div class="video-wrapper">
+                            <video id="onlineVideoPlayer" class="video-element" controls preload="metadata" crossorigin="anonymous" playsinline>
+                                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+                                Your browser does not support HTML5 video streaming.
+                            </video>
+                            <div class="video-overlay-badge" id="videoQualityOverlay">720p &bull; 2.8 Mbps</div>
+                        </div>
+
+                        <!-- Video Telemetry Bar -->
+                        <div class="telemetry-bar">
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">CDN Edge</span>
+                                <span class="telemetry-value" id="cdnEdgeDisplay">cdn.videostream.net</span>
+                            </div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Bitrate</span>
+                                <span class="telemetry-value text-cyan" id="bitrateDisplay">2,800 kbps</span>
+                            </div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Segments Fetched</span>
+                                <span class="telemetry-value text-emerald" id="segmentCountDisplay">0 chunks</span>
+                            </div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Buffer Capacity</span>
+                                <span class="telemetry-value" id="bufferCapacityDisplay">0.0s</span>
+                            </div>
+                        </div>
+
+                        <!-- Buffer bar -->
+                        <div class="buffer-progress-bar">
+                            <div class="buffer-fill" id="bufferFill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ----------------------------------------- -->
+                <!-- SHARED COMPONENT: ACTIVITY EVENT LOG     -->
+                <!-- ----------------------------------------- -->
+                <div class="activity-log-section">
+                    <div class="log-header">
+                        <div class="log-title-wrap">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                            <span class="log-title">Activity Event Log</span>
+                        </div>
+                        <button type="button" class="btn-text" id="btnClearLog">Clear Log</button>
+                    </div>
+                    <div class="log-stream" id="activityLogStream">
+                        <div class="log-entry log-entry-info">
+                            <span class="log-time">00:00:00</span>
+                            <span class="log-msg">Dual-Panel Dashboard ready. Select an activity above to trigger protocol simulation.</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- RIGHT PANEL: PROTOCOL VISUALIZATION PANEL                    -->
+        <!-- ============================================================ -->
+        <section class="panel visualizer-panel" id="visualizerPanel">
+            <div class="panel-header">
+                <div class="panel-title-wrap">
+                    <span class="panel-number">2</span>
+                    <div>
+                        <h2 class="panel-title">Protocol Visualization Panel</h2>
+                        <p class="panel-subtitle">Live animated protocol exchanges (DNS &bull; HTTP &bull; SMTP &bull; Segments)</p>
+                    </div>
+                </div>
+
+                <!-- Protocol Badge -->
+                <div class="protocol-badge-wrap">
+                    <span class="protocol-badge" id="activeProtocolBadge">DNS &rarr; HTTP/1.1</span>
+                </div>
+            </div>
+
+            <!-- Visualization Control Toolbar (Pause / Next / Prev / Replay / Speed) -->
+            <div class="viz-toolbar">
+                <div class="viz-controls-group">
+                    <button type="button" class="btn-ctrl" id="btnPrevStep" title="Previous Step" disabled>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="3"></line></svg>
+                        <span>Prev</span>
+                    </button>
+
+                    <button type="button" class="btn-ctrl btn-ctrl-primary" id="btnPlayPause" title="Play / Pause Animation">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" id="playIcon"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" id="pauseIcon" class="hidden"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                        <span id="playPauseLabel">Play</span>
+                    </button>
+
+                    <button type="button" class="btn-ctrl" id="btnNextStep" title="Next Step" disabled>
+                        <span>Next</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="3"></line></svg>
+                    </button>
+
+                    <button type="button" class="btn-ctrl" id="btnReplay" title="Replay from Step 1">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"></path><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                        <span>Replay</span>
+                    </button>
+                </div>
+
+                <div class="viz-status-group">
+                    <span class="step-indicator" id="stepCounter">Step 0 / 0</span>
+                    
+                    <div class="speed-selector">
+                        <label for="speedSelect" class="speed-label">Speed:</label>
+                        <select id="speedSelect" class="form-select-sm">
+                            <option value="2000">0.5x</option>
+                            <option value="1200" selected>1.0x</option>
+                            <option value="600">2.0x</option>
+                        </select>
+                    </div>
+
+                    <!-- View Mode Toggle -->
+                    <div class="view-toggle" role="group" aria-label="Visualizer view mode">
+                        <button type="button" class="btn-toggle active" id="viewModeSequence" title="Sequence Diagram View">Flow</button>
+                        <button type="button" class="btn-toggle" id="viewModeInspector" title="Detailed Packet Inspector">Packets</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualizer Stage -->
+            <div class="visualizer-stage" id="visualizerStage">
+
+                <!-- Sequence Diagram Actor Pillars -->
+                <div class="sequence-pillars">
+                    <div class="pillar client-pillar">
+                        <div class="pillar-box">
+                            <span class="pillar-icon">💻</span>
+                            <div class="pillar-text">
+                                <span class="pillar-role" id="clientActorLabel">Client / Browser</span>
+                                <span class="pillar-addr" id="clientAddrLabel">Port: 54210</span>
+                            </div>
+                        </div>
+                        <div class="pillar-line"></div>
+                    </div>
+
+                    <div class="pillar server-pillar">
+                        <div class="pillar-box">
+                            <span class="pillar-icon">🌐</span>
+                            <div class="pillar-text">
+                                <span class="pillar-role" id="serverActorLabel">Remote Host</span>
+                                <span class="pillar-addr" id="serverAddrLabel">DNS / HTTP / SMTP / CDN</span>
+                            </div>
+                        </div>
+                        <div class="pillar-line"></div>
+                    </div>
+                </div>
+
+                <!-- Empty State Placeholder -->
+                <div class="viz-empty-state" id="vizEmptyState">
+                    <div class="empty-icon-wrap">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    </div>
+                    <h3>Awaiting Application Activity</h3>
+                    <p>Trigger an action on the left panel (e.g. visit a website, send an email, or play a video) to begin live protocol packet visualization.</p>
+                </div>
+
+                <!-- Steps Container (Cards rendered here) -->
+                <div class="steps-timeline" id="stepsTimeline"></div>
+
+                <!-- Packet Inspector Mode Container (Collapsible detailed view) -->
+                <div class="packet-inspector-view hidden" id="packetInspectorView">
+                    <div class="inspector-empty" id="inspectorEmpty">Select or advance to a step to inspect packet header fields and raw protocol wire lines.</div>
+                    <div class="inspector-content hidden" id="inspectorContent">
+                        <div class="inspector-card">
+                            <div class="inspector-header">
+                                <span class="inspector-badge" id="inspProtocolBadge">HTTP/1.1</span>
+                                <h4 class="inspector-title" id="inspTitle">HTTP GET Request</h4>
+                                <span class="inspector-time" id="inspTime">+0ms</span>
+                            </div>
+                            <div class="inspector-meta-grid" id="inspMetaGrid"></div>
+                            
+                            <div class="inspector-section">
+                                <div class="section-title">Parsed Protocol Key Fields</div>
+                                <div class="fields-table-wrap" id="inspFieldsTable"></div>
+                            </div>
+
+                            <div class="inspector-section">
+                                <div class="section-title">Raw Protocol Wire Data (CRLF Encoded)</div>
+                                <pre class="raw-code-block" id="inspRawWire"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visualizer Progress Track -->
+            <div class="viz-progress-track">
+                <div class="viz-progress-fill" id="vizProgressFill" style="width: 0%;"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer with Assignment Metadata -->
+    <footer class="app-footer">
+        <div>
+            <strong>Dual-Panel Activity &amp; Protocol Visualizer</strong> &bull; Computer Networks Application Layer
+        </div>
+        <div class="footer-links">
+            <span class="ai-credit">AI-Assisted with Google Antigravity &bull; Gemini 3.8 Flash</span>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/static/js/visualizer.js"></script>
+    <script src="/static/js/streaming.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
