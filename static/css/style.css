@@ -1476,3 +1476,288 @@ label {
     color: #c084fc;
     font-weight: 500;
 }
+
+/* ==========================================================================
+   ASSIGNMENT 2 EXTENSIONS: TRANSPORT LAYER & DUAL-LAYER SYNCHRONIZATION
+   ========================================================================== */
+
+/* Layer Switcher Tabs */
+.layer-tabs-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.25rem;
+    background: #0d1527;
+    border-bottom: 1px solid var(--border-color);
+    flex-wrap: wrap;
+}
+
+.layer-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.layer-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+}
+
+.layer-tab-btn.active {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(14, 165, 233, 0.1));
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.4);
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+}
+
+.layer-tab-btn.tab-dual.active {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(56, 189, 248, 0.15));
+    color: #c084fc;
+    border-color: rgba(168, 85, 247, 0.4);
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.2);
+}
+
+/* TCP State Machine Live Bar */
+.tcp-state-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.45rem 1.25rem;
+    background: rgba(15, 23, 42, 0.95);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tcp-state-endpoints {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.endpoint-state {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.endpoint-state-label {
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.state-badge {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    letter-spacing: 0.02em;
+    transition: var(--transition);
+}
+
+.state-badge-closed {
+    background: rgba(100, 116, 139, 0.2);
+    color: #94a3b8;
+    border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+.state-badge-listen {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.state-badge-syn {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.state-badge-established {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
+}
+
+.state-badge-fin {
+    background: rgba(236, 72, 153, 0.2);
+    color: #f472b6;
+    border: 1px solid rgba(236, 72, 153, 0.4);
+}
+
+.state-badge-time-wait {
+    background: rgba(168, 85, 247, 0.2);
+    color: #c084fc;
+    border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+/* Congestion Control & Flow Control Bar */
+.congestion-telemetry-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.4rem 1.25rem;
+    background: rgba(10, 15, 29, 0.95);
+    border-bottom: 1px dashed var(--border-color);
+    font-size: 0.7rem;
+    font-family: var(--font-mono);
+    overflow-x: auto;
+}
+
+.cong-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    white-space: nowrap;
+}
+
+.cong-pill-label {
+    color: var(--text-muted);
+}
+
+.cong-pill-val {
+    color: var(--cyan);
+    font-weight: 600;
+}
+
+/* TCP Flags */
+.flag-tag {
+    display: inline-block;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    margin-right: 0.25rem;
+}
+
+.flag-syn { background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); }
+.flag-ack { background: rgba(16, 185, 129, 0.25); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.5); }
+.flag-psh { background: rgba(56, 189, 248, 0.25); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.5); }
+.flag-fin { background: rgba(239, 68, 68, 0.25); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.5); }
+.flag-rst { background: rgba(220, 38, 38, 0.4); color: #fca5a5; border: 1px solid #ef4444; }
+.flag-udp { background: rgba(168, 85, 247, 0.25); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.5); }
+.flag-rtp { background: rgba(236, 72, 153, 0.25); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.5); }
+.flag-quic { background: rgba(14, 165, 233, 0.25); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.5); }
+
+/* Dual View Side-by-Side Synchronized Grid */
+.dual-view-stage {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 1rem;
+    width: 100%;
+}
+
+@media (max-width: 1200px) {
+    .dual-view-stage {
+        grid-template-columns: 1fr;
+    }
+}
+
+.dual-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.75rem;
+    min-height: 400px;
+}
+
+.dual-column-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.dual-column-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.dual-column-badge {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--cyan);
+    background: rgba(56, 189, 248, 0.1);
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+/* Activity Option Switches (Left Panel) */
+.activity-sub-options {
+    margin-top: 0.85rem;
+    padding: 0.5rem 0.85rem;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.opt-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.segmented-choice {
+    display: flex;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 2px;
+}
+
+.segmented-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.segmented-btn:hover {
+    color: var(--text-primary);
+}
+
+.segmented-btn.active {
+    background: #0284c7;
+    color: white;
+    box-shadow: 0 0 8px rgba(2, 132, 199, 0.4);
+}
+

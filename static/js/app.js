@@ -1,6 +1,7 @@
 /**
- * Main Application Controller
- * Handles tab switching, user activity dispatchers, activity logging, and live dual-panel synchronization.
+ * Main Application Controller (Assignment 2)
+ * Handles tab switching, user activity dispatchers, activity logging,
+ * and live dual-panel synchronization across Application and Transport layers.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -26,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const browserStatusBadge = document.getElementById('browserStatusBadge');
     const browserPreviewFrame = document.getElementById('browserPreviewFrame');
     const viewportPlaceholder = document.querySelector('.viewport-placeholder');
+    const browseTcpButtons = document.querySelectorAll('#browseTcpModeChoice .segmented-btn');
 
     // Mail Elements
     const mailForm = document.getElementById('mailForm');
@@ -84,12 +86,13 @@ document.addEventListener('DOMContentLoaded', () => {
             window.logActivity(`Switched activity mode to: ${mode.toUpperCase()}`, 'info');
 
             // Set default protocol badge text
+            const badge = document.getElementById('activeProtocolBadge');
             if (mode === 'browsing') {
-                document.getElementById('activeProtocolBadge').textContent = 'DNS ➔ HTTP/1.1';
+                if (badge) badge.textContent = 'DNS ➔ HTTP/1.1 • TCP Stream';
             } else if (mode === 'mail') {
-                document.getElementById('activeProtocolBadge').textContent = 'DNS MX ➔ SMTP (RFC 5321)';
+                if (badge) badge.textContent = 'DNS MX ➔ SMTP (RFC 5321) • TCP Port 25';
             } else if (mode === 'streaming') {
-                document.getElementById('activeProtocolBadge').textContent = 'DNS ➔ HTTP HLS (Manifest + Segments)';
+                if (badge) badge.textContent = 'HLS / RTP ➔ Video Streaming • TCP/UDP';
             }
         });
     });
@@ -97,6 +100,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // -------------------------------------------------------------
     // 1. Browsing Activity Handler
     // -------------------------------------------------------------
+    browseTcpButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            browseTcpButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const isPersistent = btn.dataset.persistent === 'true';
+            window.logActivity(`TCP Mode changed to: ${isPersistent ? 'PERSISTENT (Keep-Alive)' : 'NON-PERSISTENT (Teardown)'}`, 'info');
+        });
+    });
+
     presetChips.forEach(chip => {
         chip.addEventListener('click', () => {
             browseUrlInput.value = chip.dataset.url;
@@ -111,18 +123,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function executeBrowsing() {
         const rawUrl = browseUrlInput.value.trim() || 'example.com';
+        const activeTcpBtn = document.querySelector('#browseTcpModeChoice .segmented-btn.active');
+        const persistent = activeTcpBtn ? activeTcpBtn.dataset.persistent === 'true' : false;
+
         btnVisit.disabled = true;
-        browserStatusBadge.textContent = 'Resolving DNS...';
+        browserStatusBadge.textContent = 'Resolving DNS & Connecting TCP...';
         browserStatusBadge.className = 'mockup-status-badge';
         mockupAddressBar.textContent = rawUrl.startsWith('http') ? rawUrl : `http://${rawUrl}`;
 
-        window.logActivity(`[BROWSE] Initiating visit to: ${rawUrl}`, 'protocol');
+        window.logActivity(`[BROWSE] Initiating visit to: ${rawUrl} (TCP Mode: ${persistent ? 'Keep-Alive' : 'Close'})`, 'protocol');
 
         try {
             const resp = await fetch('/api/browse', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: rawUrl })
+                body: JSON.stringify({ url: rawUrl, persistent: persistent })
             });
             const data = await resp.json();
 
@@ -135,13 +150,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 browserPreviewFrame.classList.remove('hidden');
                 browserPreviewFrame.srcdoc = data.html_content;
 
-                window.logActivity(`[DNS] Resolved '${data.domain}' ➔ ${data.resolved_ip}`, 'success');
+                window.logActivity(`[DNS] UDP Port 53 resolved '${data.domain}' ➔ ${data.resolved_ip}`, 'success');
+                window.logActivity(`[TCP] 3-Way Handshake established on ${data.resolved_ip}:80 (SYN ➔ SYN-ACK ➔ ACK)`, 'protocol');
                 window.logActivity(`[HTTP] GET ${data.url} ➔ HTTP ${data.status_code} ${data.status_phrase} (${data.duration_ms}ms total)`, 'success');
+                if (!persistent) {
+                    window.logActivity(`[TCP] 4-Way Connection Teardown executed (FIN-ACK ➔ ACK ➔ FIN-ACK ➔ ACK)`, 'info');
+                } else {
+                    window.logActivity(`[TCP] Connection retained in ESTABLISHED state for subsequent HTTP requests (Keep-Alive)`, 'info');
+                }
 
-                // Trigger Live Protocol Visualization on Right Panel
-                window.protocolVisualizer.loadSequence(
-                    data.steps,
-                    'DNS ➔ HTTP/1.1 Request/Response',
+                // Trigger Live Dual-Layer Protocol Visualization on Right Panel
+                window.protocolVisualizer.loadDualSequences(
+                    data.app_steps,
+                    data.transport_steps,
+                    `DNS ➔ HTTP/1.1 • TCP (${data.domain})`,
                     {
                         clientRole: 'Web Browser (Client)',
                         clientAddr: 'Port: 54212',
@@ -178,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSendMail.disabled = true;
         mailStatusBadge.textContent = 'Transmitting...';
         envelopeQueueId.textContent = 'Queue ID: Negotiating';
-        envelopeDetails.innerHTML = `<span class="badge badge-neutral">Executing SMTP Handshake...</span>`;
+        envelopeDetails.innerHTML = `<span class="badge badge-neutral">Executing DNS MX &amp; TCP Handshake (Port 25)...</span>`;
 
         // Animate route dot
         const routeDot = mailRouteLine.querySelector('.route-dot');
@@ -203,19 +225,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 mailStatusBadge.textContent = '250 Delivered';
                 mailStatusBadge.classList.add('badge-success');
                 envelopeQueueId.textContent = `Queue ID: ${data.queue_id}`;
-                routeMtaName.textContent = `MTA (${data.server_host})`;
+                routeMtaName.textContent = `MTA (${data.server_host}:25)`;
                 envelopeDetails.innerHTML = `<span class="badge badge-success">✓ 250 2.0.0 Ok: queued as ${data.queue_id}</span>`;
 
                 if (routeDot) routeDot.style.left = '90%';
 
-                window.logActivity(`[SMTP] DNS MX resolved mail exchange: ${data.server_host}`, 'success');
-                window.logActivity(`[SMTP] 220 Greeting ➔ EHLO ➔ MAIL FROM ➔ RCPT TO ➔ DATA ➔ QUIT`, 'protocol');
-                window.logActivity(`[SMTP] Message accepted by MTA with Queue ID: ${data.queue_id}`, 'success');
+                window.logActivity(`[DNS] UDP MX query resolved mail exchange: ${data.server_host}`, 'success');
+                window.logActivity(`[TCP] 3-Way Handshake connected to SMTP server ${data.server_host}:25`, 'protocol');
+                window.logActivity(`[SMTP] Complete RFC 5321 conversation: EHLO ➔ MAIL FROM ➔ RCPT TO ➔ DATA ➔ QUIT`, 'protocol');
+                window.logActivity(`[TCP] All SMTP commands and replies transported over reliable byte-stream segments`, 'info');
+                window.logActivity(`[SMTP] Accepted by MTA with Queue ID: ${data.queue_id}`, 'success');
 
-                // Trigger Live Protocol Visualization on Right Panel
-                window.protocolVisualizer.loadSequence(
-                    data.steps,
-                    'DNS MX ➔ SMTP Conversation (RFC 5321)',
+                // Trigger Live Dual-Layer Protocol Visualization on Right Panel
+                window.protocolVisualizer.loadDualSequences(
+                    data.app_steps,
+                    data.transport_steps,
+                    `DNS MX ➔ SMTP RFC 5321 • TCP Stream (Port 25)`,
                     {
                         clientRole: 'Client Mail Agent (MUA)',
                         clientAddr: 'Port: 49152',

@@ -1,6 +1,7 @@
 /**
- * Streaming Controller
+ * Streaming Controller (Assignment 2)
  * Connects real online HTML5 video playback with protocol telemetry and segment packet transfers.
+ * Supports comparison between TCP (HLS Chunks), UDP (RTP Datagrams), and QUIC (HTTP/3).
  */
 
 class StreamingController {
@@ -9,6 +10,7 @@ class StreamingController {
         this.videoSelect = document.getElementById('videoSelect');
         this.qualitySelect = document.getElementById('qualitySelect');
         this.btnInitStream = document.getElementById('btnInitStream');
+        this.transportButtons = document.querySelectorAll('#streamTransportModeChoice .segmented-btn');
         
         // Telemetry Displays
         this.cdnEdgeDisplay = document.getElementById('cdnEdgeDisplay');
@@ -20,6 +22,7 @@ class StreamingController {
 
         this.currentVideoId = 'bbb';
         this.currentQuality = '720p';
+        this.transportMode = 'tcp'; // 'tcp', 'udp', 'quic'
         this.segmentCount = 0;
         this.nextSegmentNum = 1;
         this.lastSegmentPlaybackTime = 0;
@@ -38,6 +41,19 @@ class StreamingController {
 
         this.qualitySelect.addEventListener('change', (e) => {
             this.handleQualityChange(e.target.value);
+        });
+
+        // Transport Mode Selector Buttons (TCP vs UDP vs QUIC)
+        this.transportButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.transportButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.transportMode = btn.dataset.mode;
+                window.logActivity(`Video Transport Protocol changed to: ${this.transportMode.toUpperCase()}`, 'protocol');
+                if (this.isStreamingActive) {
+                    this.startStreaming();
+                }
+            });
         });
 
         // Track video playback time to trigger progressive segment requests
@@ -59,7 +75,8 @@ class StreamingController {
         this.lastSegmentPlaybackTime = 0;
         this.isStreamingActive = true;
 
-        window.logActivity(`Initiating video stream: ${this.videoSelect.options[this.videoSelect.selectedIndex].text} at ${this.currentQuality}`, 'protocol');
+        const modeLabel = this.transportMode.toUpperCase();
+        window.logActivity(`Initiating video stream: ${this.videoSelect.options[this.videoSelect.selectedIndex].text} at ${this.currentQuality} via ${modeLabel}`, 'protocol');
 
         try {
             const resp = await fetch('/api/stream/init', {
@@ -67,7 +84,8 @@ class StreamingController {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     video_id: this.currentVideoId,
-                    quality: this.currentQuality
+                    quality: this.currentQuality,
+                    transport_mode: this.transportMode
                 })
             });
             const data = await resp.json();
@@ -79,32 +97,41 @@ class StreamingController {
                 // Update Telemetry
                 this.cdnEdgeDisplay.textContent = video.cdn_host;
                 this.bitrateDisplay.textContent = qualInfo.bitrate;
-                this.qualityOverlay.textContent = `${this.currentQuality} • ${qualInfo.bitrate}`;
+                this.qualityOverlay.textContent = `${this.currentQuality} • ${qualInfo.bitrate} • ${modeLabel}`;
                 this.segmentCountDisplay.textContent = `1 chunk (Init)`;
 
                 // Update HTML5 Video source
-                if (video.video_url) {
+                if (video.video_url && this.videoPlayer.src !== video.video_url) {
                     this.videoPlayer.src = video.video_url;
                     this.videoPlayer.load();
                     this.videoPlayer.play().catch(() => {
-                        // Autoplay might be muted or blocked by browser policy
                         console.log('Autoplay deferred until user interaction');
                     });
                 }
 
-                window.logActivity(`DNS resolved: ${video.cdn_host} ➔ ${video.cdn_ip}`, 'success');
-                window.logActivity(`HLS Master Manifest loaded. Available bitrates: 1080p, 720p, 480p, 360p`, 'protocol');
-                window.logActivity(`Initial buffer chunk (segment_000.ts) received via HTTP 206 Partial Content.`, 'success');
+                window.logActivity(`[DNS] Resolved: ${video.cdn_host} ➔ ${video.cdn_ip} (UDP Port 53)`, 'success');
+                if (this.transportMode === 'tcp') {
+                    window.logActivity(`[TCP] 3-Way Handshake with CDN edge ${video.cdn_ip}:443`, 'protocol');
+                    window.logActivity(`[HLS] Master Manifest & Media Playlist retrieved via HTTP GET over TCP`, 'protocol');
+                    window.logActivity(`[TCP] Initial buffer chunk received. cwnd doubled (Slow Start phase)`, 'success');
+                } else if (this.transportMode === 'udp') {
+                    window.logActivity(`[UDP/RTP] Direct media datagram channel opened (0-RTT, No TCP handshake overhead)`, 'protocol');
+                    window.logActivity(`[RTP] Streaming H.264 video datagrams (Payload Type 96, 90kHz timestamp clock)`, 'success');
+                } else if (this.transportMode === 'quic') {
+                    window.logActivity(`[QUIC] 1-RTT Handshake completed over UDP Port 443 with TLS 1.3 encapsulation`, 'protocol');
+                    window.logActivity(`[HTTP/3] Multiplexed independent streams active (Eliminates Head-of-Line blocking)`, 'success');
+                }
 
-                // Feed protocol steps to Right Panel visualizer
-                window.protocolVisualizer.loadSequence(
-                    data.steps,
-                    'DNS ➔ HTTP HLS (Manifest + Segments)',
+                // Feed protocol steps to Right Panel visualizer (Dual Sequences)
+                window.protocolVisualizer.loadDualSequences(
+                    data.app_steps,
+                    data.transport_steps,
+                    `HLS Streaming ➔ ${video.title.split(' ')[0]} (${modeLabel})`,
                     {
                         clientRole: 'HTML5 Video Player',
                         clientAddr: 'Port: 51240',
                         serverRole: `CDN Edge (${video.cdn_host})`,
-                        serverAddr: `${video.cdn_ip}:443`
+                        serverAddr: `${video.cdn_ip}:${this.transportMode === 'udp' ? '5004' : '443'}`
                     }
                 );
             }
@@ -121,10 +148,10 @@ class StreamingController {
         }
 
         const selectedTier = newQuality === 'auto' ? '720p' : newQuality;
-        window.logActivity(`Adaptive Bitrate Switch: Switching stream quality to ${newQuality.toUpperCase()}...`, 'protocol');
+        window.logActivity(`Adaptive Bitrate Switch: Switching stream quality to ${newQuality.toUpperCase()} (${this.transportMode.toUpperCase()})...`, 'protocol');
 
         try {
-            const nextStepNum = (window.protocolVisualizer.steps.length || 8) + 1;
+            const nextStepNum = (window.protocolVisualizer.activeSteps.length || 8) + 1;
             const resp = await fetch('/api/stream/segment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -132,7 +159,8 @@ class StreamingController {
                     video_id: this.currentVideoId,
                     quality: selectedTier,
                     segment_num: this.nextSegmentNum++,
-                    start_step_num: nextStepNum
+                    start_step_num: nextStepNum,
+                    transport_mode: this.transportMode
                 })
             });
             const data = await resp.json();
@@ -142,15 +170,17 @@ class StreamingController {
                 this.segmentCount++;
                 this.segmentCountDisplay.textContent = `${this.segmentCount + 1} chunks`;
                 this.bitrateDisplay.textContent = data.response_step.fields.Bitrate || '3,000 kbps';
-                this.qualityOverlay.textContent = `${this.currentQuality} • ${this.bitrateDisplay.textContent}`;
+                this.qualityOverlay.textContent = `${this.currentQuality} • ${this.bitrateDisplay.textContent} • ${this.transportMode.toUpperCase()}`;
 
-                window.logActivity(`Switched to ${selectedTier}. Fetched ${data.request_step.fields.Segment} (${data.response_step.fields['Chunk Size']})`, 'success');
+                window.logActivity(`[ABR] Switched to ${selectedTier}. Fetched ${data.request_step.fields.Segment} (${data.response_step.fields['Chunk Size']})`, 'success');
 
                 // Append request & response to live visualizer
-                window.protocolVisualizer.appendLiveStep(data.request_step);
-                setTimeout(() => {
+                if (data.transport_steps && data.transport_steps.length > 0) {
+                    data.transport_steps.forEach(st => window.protocolVisualizer.appendLiveStep(st));
+                } else {
+                    window.protocolVisualizer.appendLiveStep(data.request_step);
                     window.protocolVisualizer.appendLiveStep(data.response_step);
-                }, 300);
+                }
             }
         } catch (err) {
             console.error('Error switching stream quality:', err);
@@ -159,11 +189,10 @@ class StreamingController {
 
     onTimeUpdate() {
         if (!this.isStreamingActive) return;
-
         const currentTime = this.videoPlayer.currentTime;
         this.updateBufferMetrics();
 
-        // Every 3 seconds of forward playback, simulate requesting the next video segment chunk
+        // Fetch segment periodically as video plays
         if (currentTime - this.lastSegmentPlaybackTime >= 3.5) {
             this.lastSegmentPlaybackTime = currentTime;
             this.fetchNextSegment();
@@ -172,7 +201,7 @@ class StreamingController {
 
     async fetchNextSegment() {
         const segNum = this.nextSegmentNum++;
-        const nextStepNum = (window.protocolVisualizer.steps.length || 8) + 1;
+        const nextStepNum = (window.protocolVisualizer.activeSteps.length || 8) + 1;
 
         try {
             const resp = await fetch('/api/stream/segment', {
@@ -182,7 +211,8 @@ class StreamingController {
                     video_id: this.currentVideoId,
                     quality: this.currentQuality,
                     segment_num: segNum,
-                    start_step_num: nextStepNum
+                    start_step_num: nextStepNum,
+                    transport_mode: this.transportMode
                 })
             });
             const data = await resp.json();
@@ -190,40 +220,45 @@ class StreamingController {
             if (data.status === 'success') {
                 this.segmentCount++;
                 this.segmentCountDisplay.textContent = `${this.segmentCount + 1} chunks`;
-                
-                window.logActivity(`[HLS] HTTP GET ${data.request_step.fields.Segment} ➔ HTTP 206 Partial Content (${data.response_step.fields['Chunk Size']})`, 'protocol');
 
-                // Append dynamically to visualizer
-                window.protocolVisualizer.appendLiveStep(data.request_step);
-                setTimeout(() => {
+                if (this.transportMode === 'tcp') {
+                    window.logActivity(`[TCP] Video segment #${segNum} downloaded. ACK received. Receive Window advertised.`, 'info');
+                } else if (this.transportMode === 'udp') {
+                    window.logActivity(`[UDP/RTP] Video datagram #${segNum} streamed (Loss-tolerant, unacknowledged).`, 'info');
+                }
+
+                // Append transport steps
+                if (data.transport_steps && data.transport_steps.length > 0) {
+                    data.transport_steps.forEach(st => window.protocolVisualizer.appendLiveStep(st));
+                } else {
+                    window.protocolVisualizer.appendLiveStep(data.request_step);
                     window.protocolVisualizer.appendLiveStep(data.response_step);
-                }, 250);
+                }
             }
         } catch (err) {
-            console.error('Error fetching stream segment:', err);
+            console.error('Error fetching progressive video segment:', err);
         }
     }
 
     updateBufferMetrics() {
-        const player = this.videoPlayer;
-        if (!player || !player.buffered.length) return;
+        if (!this.videoPlayer || !this.videoPlayer.buffered.length) return;
+        const currentTime = this.videoPlayer.currentTime;
+        const duration = this.videoPlayer.duration || 600;
+        let forwardBuffer = 0;
 
-        try {
-            const currentTime = player.currentTime;
-            let forwardBuffer = 0;
-            for (let i = 0; i < player.buffered.length; i++) {
-                if (player.buffered.start(i) <= currentTime && player.buffered.end(i) >= currentTime) {
-                    forwardBuffer = player.buffered.end(i) - currentTime;
-                    break;
-                }
+        for (let i = 0; i < this.videoPlayer.buffered.length; i++) {
+            const start = this.videoPlayer.buffered.start(i);
+            const end = this.videoPlayer.buffered.end(i);
+            if (currentTime >= start && currentTime <= end) {
+                forwardBuffer = end - currentTime;
+                break;
             }
-            this.bufferCapacityDisplay.textContent = `${forwardBuffer.toFixed(1)}s`;
+        }
 
-            // Buffer fill percentage against 30s target
-            const pct = Math.min(100, Math.round((forwardBuffer / 20) * 100));
-            this.bufferFill.style.width = `${pct}%`;
-        } catch (e) {
-            // Buffer query exception safeguard
+        this.bufferCapacityDisplay.textContent = `${forwardBuffer.toFixed(1)}s`;
+        const bufferPct = Math.min(100, Math.max(5, (forwardBuffer / 30) * 100));
+        if (this.bufferFill) {
+            this.bufferFill.style.width = `${bufferPct}%`;
         }
     }
 }

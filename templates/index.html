@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Dual-Panel Activity & Protocol Visualizer for Computer Networks Application Layer (DNS, HTTP, SMTP, Video Streaming)">
-    <title>Application Layer – Dual-Panel Activity & Protocol Visualizer</title>
+    <meta name="description" content="Dual-Panel Activity & Transport-Layer Protocol Visualizer for Computer Networks (Assignment 2: DNS, HTTP, SMTP, HLS, TCP, UDP, QUIC)">
+    <title>Dual-Panel Activity &amp; Transport-Layer Protocol Visualizer (Assignment 2)</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,16 +24,16 @@
                 </svg>
             </div>
             <div>
-                <h1 class="header-title">Dual-Panel Activity &amp; Protocol Visualizer</h1>
-                <p class="header-subtitle">Computer Networks &bull; Application Layer Protocol Simulation (DNS &bull; HTTP &bull; SMTP &bull; HLS Streaming)</p>
+                <h1 class="header-title">Dual-Panel Activity &amp; Transport-Layer Protocol Visualizer</h1>
+                <p class="header-subtitle">Computer Networks &bull; Assignment 2 &bull; Synchronized App (DNS/HTTP/SMTP/HLS) &amp; Transport (TCP/UDP/QUIC)</p>
             </div>
         </div>
 
         <div class="header-meta">
             <div class="badge-tag live-badge">
-                <span class="live-dot"></span> Live Sync Active
+                <span class="live-dot"></span> Dual-Layer Sync Active
             </div>
-            <div class="badge-tag ai-badge" title="Developed with Google Antigravity & Gemini">
+            <div class="badge-tag ai-badge" title="Developed with Google Antigravity & Gemini 3.8 Flash">
                 <span class="ai-sparkle">✦</span> Agentic AI: Gemini
             </div>
         </div>
@@ -51,7 +51,7 @@
                     <span class="panel-number">1</span>
                     <div>
                         <h2 class="panel-title">Activity Panel</h2>
-                        <p class="panel-subtitle">Select and execute an application-layer activity</p>
+                        <p class="panel-subtitle">Select and execute an activity (Browsing, Mail, Streaming)</p>
                     </div>
                 </div>
 
@@ -80,8 +80,8 @@
                 <!-- ----------------------------------------- -->
                 <div class="activity-view active" id="viewBrowsing">
                     <div class="activity-card">
-                        <h3 class="view-heading">Web Browser Simulator (DNS &rarr; HTTP/1.1)</h3>
-                        <p class="view-desc">Enter a domain or full URL to inspect the host DNS resolution followed by an HTTP/1.1 GET transaction.</p>
+                        <h3 class="view-heading">Web Browser Simulator (DNS &rarr; HTTP/1.1 &rarr; TCP Byte-Stream)</h3>
+                        <p class="view-desc">Enter a domain or URL. Inspect DNS resolution, TCP 3-way handshake, HTTP GET segment transfers, and connection teardown.</p>
 
                         <form id="browseForm" class="browse-form" onsubmit="return false;">
                             <div class="url-input-wrap">
@@ -102,6 +102,18 @@
                             <button type="button" class="preset-chip" data-url="httpbin.org/get">httpbin.org/get</button>
                             <button type="button" class="preset-chip" data-url="cs.stanford.edu">cs.stanford.edu</button>
                         </div>
+
+                        <!-- TCP Connection Mode Switch (Persistent vs Non-Persistent) -->
+                        <div class="activity-sub-options">
+                            <span class="opt-label">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                                TCP Mode:
+                            </span>
+                            <div class="segmented-choice" id="browseTcpModeChoice">
+                                <button type="button" class="segmented-btn active" data-persistent="false" title="Non-Persistent: FIN-ACK teardown after request">Non-Persistent (Close)</button>
+                                <button type="button" class="segmented-btn" data-persistent="true" title="Persistent: Keep ESTABLISHED for next request">Persistent (Keep-Alive)</button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Browser Window Mockup -->
@@ -118,7 +130,7 @@
                         <div class="browser-viewport" id="browserViewport">
                             <div class="viewport-placeholder">
                                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                                <p>Click <strong>Visit</strong> above to initiate DNS resolution and HTTP/1.1 page retrieval.</p>
+                                <p>Click <strong>Visit</strong> above to initiate DNS resolution and HTTP/1.1 page retrieval over TCP.</p>
                             </div>
                             <iframe id="browserPreviewFrame" class="browser-frame hidden" sandbox="allow-same-origin" title="Web Preview"></iframe>
                         </div>
@@ -130,8 +142,8 @@
                 <!-- ----------------------------------------- -->
                 <div class="activity-view" id="viewMail">
                     <div class="activity-card">
-                        <h3 class="view-heading">SMTP Mail Agent (DNS MX &rarr; RFC 5321)</h3>
-                        <p class="view-desc">Compose and send an email. Visualizes DNS MX resolution and the complete SMTP command-response handshake.</p>
+                        <h3 class="view-heading">SMTP Mail Agent (DNS MX &rarr; RFC 5321 over TCP Stream)</h3>
+                        <p class="view-desc">Compose and send email. Visualizes DNS MX resolution, TCP 3-way handshake to port 25, conversational PSH-ACK commands, and 4-way teardown.</p>
 
                         <form id="mailForm" class="mail-form" onsubmit="return false;">
                             <div class="form-group-row">
@@ -147,14 +159,14 @@
 
                             <div class="form-group">
                                 <label for="mailSubjectInput">Subject:</label>
-                                <input type="text" id="mailSubjectInput" class="form-input" value="Computer Networks Assignment Submission - Dual Panel" required>
+                                <input type="text" id="mailSubjectInput" class="form-input" value="Computer Networks Assignment 2 - Transport Layer Visualizer" required>
                             </div>
 
                             <div class="form-group">
                                 <label for="mailBodyInput">Message Body:</label>
                                 <textarea id="mailBodyInput" class="form-textarea" rows="4" required>Dear Professor,
 
-Please find our Application Layer dual-panel protocol visualizer demonstration. It showcases live DNS resolution, HTTP/1.1 message flows, SMTP RFC 5321 state machines, and chunked HLS video streaming with dynamic telemetry.
+Please find our Assignment 2 demonstration of the Dual-Panel Activity & Transport-Layer Protocol Visualizer. It provides synchronized Application Layer and Transport Layer views for Browsing, Mail, and Streaming activities.
 
 Regards,
 Antigravity Student Team</textarea>
@@ -187,7 +199,7 @@ Antigravity Student Team</textarea>
                                 </div>
                                 <div class="route-node">
                                     <span class="route-icon">📬</span>
-                                    <span class="route-name" id="routeMtaName">MTA (mail.networks-lab.edu)</span>
+                                    <span class="route-name" id="routeMtaName">MTA (mail.networks-lab.edu:25)</span>
                                 </div>
                             </div>
                             <div class="envelope-details" id="envelopeDetails">
@@ -204,8 +216,8 @@ Antigravity Student Team</textarea>
                     <div class="activity-card">
                         <div class="stream-header-row">
                             <div>
-                                <h3 class="view-heading">Online Video Streamer (HLS / MPEG-DASH)</h3>
-                                <p class="view-desc">Plays online videos in real time while capturing CDN DNS lookups, manifest playlists, and chunked HTTP segment transfers.</p>
+                                <h3 class="view-heading">Online Video Streamer (HLS / RTP / QUIC)</h3>
+                                <p class="view-desc">Plays real online videos while capturing CDN DNS lookups, manifest playlists, chunked segment transfers, and transport flow/congestion control.</p>
                             </div>
                             <div class="stream-live-pill">
                                 <span class="stream-dot"></span> Online Media
@@ -239,6 +251,19 @@ Antigravity Student Team</textarea>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                                     <span>Load &amp; Stream</span>
                                 </button>
+                            </div>
+                        </div>
+
+                        <!-- Transport Protocol Selector (TCP vs UDP vs QUIC) -->
+                        <div class="activity-sub-options">
+                            <span class="opt-label">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                                Transport Protocol:
+                            </span>
+                            <div class="segmented-choice" id="streamTransportModeChoice">
+                                <button type="button" class="segmented-btn active" data-mode="tcp" title="HLS over TCP with Flow & Congestion Control">TCP (HLS Chunks)</button>
+                                <button type="button" class="segmented-btn" data-mode="udp" title="Real-Time RTP datagrams over UDP (Loss tolerant, 0-RTT)">UDP (RTP Live)</button>
+                                <button type="button" class="segmented-btn" data-mode="quic" title="HTTP/3 multiplexed over QUIC/UDP (No Head-of-line blocking)">QUIC (HTTP/3)</button>
                             </div>
                         </div>
                     </div>
@@ -294,7 +319,7 @@ Antigravity Student Team</textarea>
                     <div class="log-stream" id="activityLogStream">
                         <div class="log-entry log-entry-info">
                             <span class="log-time">00:00:00</span>
-                            <span class="log-msg">Dual-Panel Dashboard ready. Select an activity above to trigger protocol simulation.</span>
+                            <span class="log-msg">Dual-Panel Dashboard ready (Assignment 2). Select an activity above to trigger protocol simulation.</span>
                         </div>
                     </div>
                 </div>
@@ -311,14 +336,58 @@ Antigravity Student Team</textarea>
                     <span class="panel-number">2</span>
                     <div>
                         <h2 class="panel-title">Protocol Visualization Panel</h2>
-                        <p class="panel-subtitle">Live animated protocol exchanges (DNS &bull; HTTP &bull; SMTP &bull; Segments)</p>
+                        <p class="panel-subtitle">Live animated protocol exchanges (App &amp; Transport Synchronized)</p>
                     </div>
                 </div>
 
-                <!-- Protocol Badge -->
+                <!-- Active Protocol Badge -->
                 <div class="protocol-badge-wrap">
-                    <span class="protocol-badge" id="activeProtocolBadge">DNS &rarr; HTTP/1.1</span>
+                    <span class="protocol-badge" id="activeProtocolBadge">DNS &rarr; HTTP/1.1 &bull; TCP</span>
                 </div>
+            </div>
+
+            <!-- Layer Mode Selector Tabs (App Layer | Transport Layer | Dual Sync View) -->
+            <div class="layer-tabs-container" role="tablist" aria-label="Protocol Layer Switcher">
+                <button type="button" class="layer-tab-btn" id="tabLayerApp" data-layer="app" role="tab" aria-selected="false">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                    <span>Application Layer</span>
+                </button>
+                <button type="button" class="layer-tab-btn active" id="tabLayerTransport" data-layer="transport" role="tab" aria-selected="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                    <span>Transport Layer (TCP / UDP)</span>
+                </button>
+                <button type="button" class="layer-tab-btn tab-dual" id="tabLayerDual" data-layer="dual" role="tab" aria-selected="false">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="3" x2="12" y2="21"></line></svg>
+                    <span>Dual View (App + Transport)</span>
+                </button>
+            </div>
+
+            <!-- Live TCP State Machine Bar -->
+            <div class="tcp-state-bar" id="tcpStateBar">
+                <div class="tcp-state-endpoints">
+                    <div class="endpoint-state">
+                        <span class="endpoint-state-label">Client TCP State:</span>
+                        <span class="state-badge state-badge-closed" id="tcpClientStateBadge">CLOSED</span>
+                    </div>
+                    <div class="endpoint-state">
+                        <span class="endpoint-state-label">Server TCP State:</span>
+                        <span class="state-badge state-badge-listen" id="tcpServerStateBadge">LISTEN</span>
+                    </div>
+                </div>
+                <div class="endpoint-state">
+                    <span class="endpoint-state-label">Handshake / Link:</span>
+                    <span class="state-badge state-badge-established" id="tcpStatusText">Ready</span>
+                </div>
+            </div>
+
+            <!-- Congestion Control & Flow Control Telemetry Bar -->
+            <div class="congestion-telemetry-bar" id="congestionBar">
+                <div class="cong-pill"><span class="cong-pill-label">Seq:</span> <span class="cong-pill-val" id="dispSeq">-</span></div>
+                <div class="cong-pill"><span class="cong-pill-label">Ack:</span> <span class="cong-pill-val" id="dispAck">-</span></div>
+                <div class="cong-pill"><span class="cong-pill-label">Win:</span> <span class="cong-pill-val" id="dispWin">65,535 B</span></div>
+                <div class="cong-pill"><span class="cong-pill-label">cwnd:</span> <span class="cong-pill-val" id="dispCwnd">14,600 B (10 MSS)</span></div>
+                <div class="cong-pill"><span class="cong-pill-label">Phase:</span> <span class="cong-pill-val" id="dispPhase">Slow Start</span></div>
+                <div class="cong-pill"><span class="cong-pill-label">RTT:</span> <span class="cong-pill-val" id="dispRtt">~24 ms</span></div>
             </div>
 
             <!-- Visualization Control Toolbar (Pause / Next / Prev / Replay / Speed) -->
@@ -400,11 +469,35 @@ Antigravity Student Team</textarea>
                         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
                     </div>
                     <h3>Awaiting Application Activity</h3>
-                    <p>Trigger an action on the left panel (e.g. visit a website, send an email, or play a video) to begin live protocol packet visualization.</p>
+                    <p>Trigger an action on the left panel (visit a website, send an email, or play a video) to begin live protocol packet visualization.</p>
                 </div>
 
-                <!-- Steps Container (Cards rendered here) -->
+                <!-- Steps Container (Single Layer Mode: App OR Transport) -->
                 <div class="steps-timeline" id="stepsTimeline"></div>
+
+                <!-- Dual View Synchronized Grid Container (Dual Mode) -->
+                <div class="dual-view-stage hidden" id="dualViewStage">
+                    <div class="dual-column dual-col-app">
+                        <div class="dual-column-header">
+                            <span class="dual-column-title">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                                Application Layer Flow
+                            </span>
+                            <span class="dual-column-badge" id="dualAppCountBadge">0 steps</span>
+                        </div>
+                        <div class="steps-timeline" id="dualAppTimeline"></div>
+                    </div>
+                    <div class="dual-column dual-col-transport">
+                        <div class="dual-column-header">
+                            <span class="dual-column-title">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                                Transport Layer Flow (TCP/UDP)
+                            </span>
+                            <span class="dual-column-badge" id="dualTransportCountBadge">0 steps</span>
+                        </div>
+                        <div class="steps-timeline" id="dualTransportTimeline"></div>
+                    </div>
+                </div>
 
                 <!-- Packet Inspector Mode Container (Collapsible detailed view) -->
                 <div class="packet-inspector-view hidden" id="packetInspectorView">
@@ -412,19 +505,19 @@ Antigravity Student Team</textarea>
                     <div class="inspector-content hidden" id="inspectorContent">
                         <div class="inspector-card">
                             <div class="inspector-header">
-                                <span class="inspector-badge" id="inspProtocolBadge">HTTP/1.1</span>
-                                <h4 class="inspector-title" id="inspTitle">HTTP GET Request</h4>
+                                <span class="inspector-badge" id="inspProtocolBadge">TCP</span>
+                                <h4 class="inspector-title" id="inspTitle">TCP SYN Segment</h4>
                                 <span class="inspector-time" id="inspTime">+0ms</span>
                             </div>
                             <div class="inspector-meta-grid" id="inspMetaGrid"></div>
                             
                             <div class="inspector-section">
-                                <div class="section-title">Parsed Protocol Key Fields</div>
+                                <div class="section-title">Parsed Protocol &amp; Header Key Fields</div>
                                 <div class="fields-table-wrap" id="inspFieldsTable"></div>
                             </div>
 
                             <div class="inspector-section">
-                                <div class="section-title">Raw Protocol Wire Data (CRLF Encoded)</div>
+                                <div class="section-title">Raw Protocol Wire Data (Wireshark-style Dissection)</div>
                                 <pre class="raw-code-block" id="inspRawWire"></pre>
                             </div>
                         </div>
@@ -444,7 +537,7 @@ Antigravity Student Team</textarea>
     <!-- Footer with Assignment Metadata -->
     <footer class="app-footer">
         <div>
-            <strong>Dual-Panel Activity &amp; Protocol Visualizer</strong> &bull; Computer Networks Application Layer
+            <strong>Assignment 2: Dual-Panel Activity &amp; Transport-Layer Protocol Visualizer</strong> &bull; Computer Networks
         </div>
         <div class="footer-links">
             <span class="ai-credit">AI-Assisted with Google Antigravity &bull; Gemini 3.8 Flash</span>
